@@ -21,7 +21,9 @@ connection();
 
 /// routing
 const postRoute = require('./routes/post_route');
+const userRoute = require('./routes/user_route');
 
 app.use(`/api/posts`, postRoute);
+app.use(`/api/users`, userRoute);
 
 module.exports = app;
