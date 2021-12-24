@@ -58,7 +58,9 @@ router.post(`/login`, async (req, res, next) => {
   const payload = {userid: user.id, email: user.email};
   const token = jwt.sign(payload, secret, {expiresIn: '1d'});
 
-  return res.status(200).json({email: user.email, token: token});
+  return res
+    .status(200)
+    .json({email: user.email, token: token, expireDuration: 86400});
 });
 
 module.exports = router;

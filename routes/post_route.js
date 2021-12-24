@@ -47,10 +47,15 @@ router.post(
     const imagePath = `${basePath}${req.file.filename}`;
     console.log(imagePath);
 
+    /// setted by  checkAuth method
+    const userId = req.userData.userid;
+    console.log(userId);
+
     const post = new Post({
       title: body.title,
       content: body.content,
       imagePath: imagePath,
+      user: userId,
     });
 
     try {
@@ -65,7 +70,7 @@ router.post(
   }
 );
 
-router.get('/', async (req, res, next) => {
+router.get('/', checkAuth, async (req, res, next) => {
   const cursor = req.query.cursor;
   const limit = +req.query.limit || 10;
   let query = {};
@@ -81,7 +86,8 @@ router.get('/', async (req, res, next) => {
 
   let posts = await Post.find(query)
     .sort({_id: -1})
-    .limit(limit + 1);
+    .limit(limit + 1)
+    .populate('user', 'name');
 
   if (!posts) {
     return res.status(500).json({success: false, message: 'No find Posts'});
@@ -128,6 +134,16 @@ router.put(
     if (!findPost)
       return res.status(404).json({success: false, message: 'Not find Post'});
 
+    /// from token payload
+    const userId = req.userData.userid;
+
+    console.log(userId);
+
+    if (findPost.user != userId)
+      return res
+        .status(404)
+        .json({success: false, message: 'You cant update this post'});
+
     const file = req.file;
     let imagePath;
     if (!file) {
@@ -141,6 +157,7 @@ router.put(
       title: req.body.title,
       content: req.body.content,
       imagePath: imagePath,
+      user: userId,
     };
 
     try {

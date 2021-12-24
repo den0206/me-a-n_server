@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const {resetWatchers} = require('nodemon/lib/monitor/watch');
 
 function checkAuth(req, res, next) {
   const bearerHeader = req.headers.authorization;
@@ -8,7 +9,7 @@ function checkAuth(req, res, next) {
       const secret = process.env.JWT_SECRET_KEY || 'mysecretkey';
       const token = bearerHeader.split(' ')[1];
       const user = jwt.verify(token, secret);
-      console.log(user);
+      req.userData = user;
 
       next();
     } catch (e) {
